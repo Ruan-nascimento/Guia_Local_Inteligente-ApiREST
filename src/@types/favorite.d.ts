@@ -3,9 +3,9 @@ export type FavoriteInput = {
   placeId: string;
   name: string;
   category: string;
-  description: string;
+  description: string | null;
   rating?: number | null;
-  hours: string;
-  latitude?: number;
-  longitude?: number;
+  hours: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
