@@ -7,9 +7,13 @@ import { auth } from "./lib/auth.js";
 
 const app = express();
 
+const allowedOrigins = process.env.FRONTEND_URL 
+    ? [process.env.FRONTEND_URL.replace(/\/$/, ""), process.env.FRONTEND_URL.replace(/\/$/, "") + "/"]
+    : [];
+
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL,
+        origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })
