@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { searchRegion } from "../services/search.service";
+import { searchRegion } from "../services/search.service.js";
 
 export async function searchController(req: Request, res: Response) {
   try {

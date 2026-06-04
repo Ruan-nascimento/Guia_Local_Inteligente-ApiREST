@@ -1,5 +1,5 @@
-import { FavoriteInput } from "../@types/favorite";
-import { prisma } from "../lib/prisma";
+import type { FavoriteInput } from "../@types/favorite.js";
+import { prisma } from "../lib/prisma.js";
 
 
 

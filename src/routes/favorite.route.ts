@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { requireAuth } from "../lib/get-session-user";
+import { requireAuth } from "../lib/get-session-user.js";
 import {
   createFavoriteController,
   deleteFavoriteController,
   listFavoritesController,
-} from "../controllers/favorite.controller";
+} from "../controllers/favorite.controller.js";
 
 const routes = Router();
 

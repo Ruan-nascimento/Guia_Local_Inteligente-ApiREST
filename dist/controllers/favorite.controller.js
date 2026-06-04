@@ -1,4 +1,4 @@
-import { createFavorite, deleteFavorite, getFavorites, } from "../services/favorite.service";
+import { createFavorite, deleteFavorite, getFavorites, } from "../services/favorite.service.js";
 export async function createFavoriteController(req, res) {
     try {
         const userId = String(req.user?.id);

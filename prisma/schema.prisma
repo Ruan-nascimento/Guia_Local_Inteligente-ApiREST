@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,17 +7,17 @@ datasource db {
 }
 
 model User {
-  id            String          @id
+  id            String   @id
   name          String?
-  email         String          @unique
+  email         String   @unique
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
 
-  sessions      Session[]
-  accounts      Account[]
-  favorites     FavoritePlace[]
+  sessions  Session[]
+  accounts  Account[]
+  favorites FavoritePlace[]
 
   @@map("user")
 }
@@ -40,10 +39,10 @@ model Session {
 }
 
 model FavoritePlace {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   placeId     String
   name        String
@@ -54,8 +53,8 @@ model FavoritePlace {
   latitude    Float?
   longitude   Float?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, placeId])
   @@index([userId])

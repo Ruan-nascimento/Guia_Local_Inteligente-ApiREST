@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
-import favoriteRoutes from "./routes/favorite.route";
-import searchRoutes from "./routes/search.route";
-import { auth } from "./lib/auth";
+import favoriteRoutes from "./routes/favorite.route.js";
+import searchRoutes from "./routes/search.route.js";
+import { auth } from "./lib/auth.js";
 
 const app = express();
 
@@ -15,9 +15,14 @@ app.use(
     })
 );
 
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all(/\/api\/auth\/.*/, toNodeHandler(auth));
 
 app.use(express.json());
+
+// Rota de Health Check para monitoramento e deploy no Render
+app.get("/api/health", (req, res) => {
+    res.json({ ok: true });
+});
 
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/search", searchRoutes);

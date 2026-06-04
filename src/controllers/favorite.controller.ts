@@ -3,7 +3,7 @@ import {
     createFavorite,
     deleteFavorite,
     getFavorites,
-} from "../services/favorite.service";
+} from "../services/favorite.service.js";
 
 export async function createFavoriteController(req: Request, res: Response) {
     try {

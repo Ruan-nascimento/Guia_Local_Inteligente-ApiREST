@@ -1,8 +1,23 @@
 import "dotenv/config";
-
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
+
+// Validação das variáveis de ambiente em tempo de inicialização
+const requiredEnvs = [
+  "DATABASE_URL",
+  "BETTER_AUTH_SECRET",
+  "BETTER_AUTH_URL",
+  "FRONTEND_URL",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+];
+
+for (const envName of requiredEnvs) {
+  if (!process.env[envName]) {
+    throw new Error(`A variável de ambiente obrigatória ${envName} não está configurada.`);
+  }
+}
 
 export const auth = betterAuth({
     appName: "GLI",

@@ -1,4 +1,4 @@
-import { searchRegion } from "../services/search.service";
+import { searchRegion } from "../services/search.service.js";
 export async function searchController(req, res) {
     try {
         const { cep } = req.params;

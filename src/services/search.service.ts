@@ -8,7 +8,7 @@ import type {
   Place,
   OverpassElement,
   SearchResult,
-} from "../@types/search";
+} from "../@types/search.js";
 
 // --- Mapa de weather codes para texto em PT-BR ---
 function getWeatherText(code: number): string {
