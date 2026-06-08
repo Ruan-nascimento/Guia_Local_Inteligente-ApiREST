@@ -196,37 +196,41 @@ export async function getNearbyPlaces(
   const query = `
     [out:json][timeout:25];
     (
-      node["amenity"="restaurant"](around:${radius},${latitude},${longitude});
-      node["amenity"="cafe"](around:${radius},${latitude},${longitude});
-      node["amenity"="fast_food"](around:${radius},${latitude},${longitude});
-      node["amenity"="bar"](around:${radius},${latitude},${longitude});
-      node["amenity"="pharmacy"](around:${radius},${latitude},${longitude});
-      node["amenity"="hospital"](around:${radius},${latitude},${longitude});
-      node["amenity"="clinic"](around:${radius},${latitude},${longitude});
-      node["amenity"="bank"](around:${radius},${latitude},${longitude});
-      node["shop"="supermarket"](around:${radius},${latitude},${longitude});
-      node["shop"="convenience"](around:${radius},${latitude},${longitude});
-      node["shop"="mall"](around:${radius},${latitude},${longitude});
-      node["shop"="clothes"](around:${radius},${latitude},${longitude});
-      node["shop"="bakery"](around:${radius},${latitude},${longitude});
-      node["tourism"="attraction"](around:${radius},${latitude},${longitude});
-      node["leisure"="park"](around:${radius},${latitude},${longitude});
-      node["leisure"="fitness_centre"](around:${radius},${latitude},${longitude});
-      node["amenity"="school"](around:${radius},${latitude},${longitude});
-      node["amenity"="university"](around:${radius},${latitude},${longitude});
-      node["amenity"="police"](around:${radius},${latitude},${longitude});
-      node["amenity"="fuel"](around:${radius},${latitude},${longitude});
-      node["shop"="beauty"](around:${radius},${latitude},${longitude});
-      node["shop"="hairdresser"](around:${radius},${latitude},${longitude});
-      node["shop"="electronics"](around:${radius},${latitude},${longitude});
-      node["shop"="hardware"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="restaurant"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="cafe"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="fast_food"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="bar"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="pharmacy"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="hospital"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="clinic"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="bank"](around:${radius},${latitude},${longitude});
+      nwr["shop"="supermarket"](around:${radius},${latitude},${longitude});
+      nwr["shop"="convenience"](around:${radius},${latitude},${longitude});
+      nwr["shop"="mall"](around:${radius},${latitude},${longitude});
+      nwr["shop"="clothes"](around:${radius},${latitude},${longitude});
+      nwr["shop"="bakery"](around:${radius},${latitude},${longitude});
+      nwr["tourism"="attraction"](around:${radius},${latitude},${longitude});
+      nwr["leisure"="park"](around:${radius},${latitude},${longitude});
+      nwr["leisure"="fitness_centre"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="school"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="university"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="police"](around:${radius},${latitude},${longitude});
+      nwr["amenity"="fuel"](around:${radius},${latitude},${longitude});
+      nwr["shop"="beauty"](around:${radius},${latitude},${longitude});
+      nwr["shop"="hairdresser"](around:${radius},${latitude},${longitude});
+      nwr["shop"="electronics"](around:${radius},${latitude},${longitude});
+      nwr["shop"="hardware"](around:${radius},${latitude},${longitude});
     );
-    out body;
+    out center;
   `;
 
   const response = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
-    body: query,
+    body: "data=" + encodeURIComponent(query),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "MyLocalGuideApp/1.0",
+    },
   });
 
   if (!response.ok) {
