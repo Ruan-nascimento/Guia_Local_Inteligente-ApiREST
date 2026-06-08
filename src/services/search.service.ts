@@ -255,6 +255,68 @@ export async function getNearbyPlaces(
   return places.slice(0, 12);
 }
 
+// --- Fallback 1: Geocoding (Nominatim OpenStreetMap) ---
+export async function getCoordinatesFallback(city: string): Promise<Coordinates> {
+  const query = encodeURIComponent(city.trim());
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
+    {
+      headers: {
+        "User-Agent": "MyLocalGuideApp/1.0",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Nominatim error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("Cidade não encontrada no Nominatim.");
+  }
+
+  const lat = parseFloat(data[0].lat);
+  const lon = parseFloat(data[0].lon);
+
+  if (isNaN(lat) || isNaN(lon)) {
+    throw new Error("Coordenadas inválidas recebidas do Nominatim.");
+  }
+
+  return { latitude: lat, longitude: lon };
+}
+
+// --- Fallback 2: Weather (wttr.in) ---
+export async function getWeatherFallback(latitude: number, longitude: number): Promise<WeatherData> {
+  // format=j1 retorna JSON. lang=pt tenta trazer descrições em português.
+  const response = await fetch(`https://wttr.in/${latitude},${longitude}?format=j1&lang=pt`);
+
+  if (!response.ok) {
+    throw new Error(`wttr.in error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  const current = data.current_condition?.[0];
+  const today = data.weather?.[0];
+
+  if (!current || !today) {
+    throw new Error("Dados de clima inválidos no wttr.in.");
+  }
+
+  // Tenta pegar a descrição em PT, senão cai pro inglês padrão
+  const conditionText = current.lang_pt?.[0]?.value || current.weatherDesc?.[0]?.value || "Clima variável";
+
+  return {
+    temperature: Math.round(Number(current.temp_C)),
+    max: Math.round(Number(today.maxtempC)),
+    min: Math.round(Number(today.mintempC)),
+    condition: conditionText,
+  };
+}
+
+// --- 5. Orquestra tudo: CEP → endereço → coordenadas → clima + locais ---
 export async function searchRegion(cep: string): Promise<SearchResult> {
   const address = await getAddressByCep(cep);
   
@@ -262,25 +324,32 @@ export async function searchRegion(cep: string): Promise<SearchResult> {
   try {
     coordinates = await getCoordinates(address.localidade);
   } catch (error) {
-    console.warn("Erro ao buscar coordenadas (possível 429):", error);
-    // Retorna apenas o endereço, sem quebrar a aplicação caso a API caia
-    return {
-      address,
-      weather: { temperature: 0, max: 0, min: 0, condition: "Indisponível" },
-      places: []
-    };
+    console.warn("Erro no Open-Meteo Geocoding (possível 429), tentando Nominatim...");
+    try {
+      coordinates = await getCoordinatesFallback(address.localidade);
+    } catch (fallbackError) {
+      console.warn("Ambas as APIs de geocoding falharam:", fallbackError);
+      return {
+        address,
+        weather: { temperature: 0, max: 0, min: 0, condition: "Indisponível" },
+        places: []
+      };
+    }
   }
 
   const [weather, places] = await Promise.all([
     getWeather(coordinates.latitude, coordinates.longitude).catch(
-      (error) => {
-        console.warn("Erro ao buscar clima (possível 429):", error);
-        return {
-          temperature: 0,
-          max: 0,
-          min: 0,
-          condition: "Indisponível",
-        };
+      async (error) => {
+        console.warn("Erro no Open-Meteo Weather (possível 429), tentando wttr.in...");
+        return getWeatherFallback(coordinates.latitude, coordinates.longitude).catch((fallbackError) => {
+          console.warn("Ambas as APIs de clima falharam:", fallbackError);
+          return {
+            temperature: 0,
+            max: 0,
+            min: 0,
+            condition: "Indisponível",
+          };
+        });
       }
     ),
     getNearbyPlaces(coordinates.latitude, coordinates.longitude).catch(
