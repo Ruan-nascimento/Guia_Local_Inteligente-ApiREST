@@ -29,6 +29,14 @@ export const auth = betterAuth({
         (process.env.FRONTEND_URL as string).replace(/\/$/, ""),
     ],
 
+    advanced: {
+        crossSubDomain: false,
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true,
+        },
+    },
+
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
