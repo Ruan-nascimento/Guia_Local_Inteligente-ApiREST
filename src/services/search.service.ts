@@ -187,7 +187,7 @@ export async function getWeather(
   };
 }
 
-// --- 4. Busca locais próximos (Overpass API) ---
+
 export async function getNearbyPlaces(
   latitude: number,
   longitude: number,
