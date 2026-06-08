@@ -255,15 +255,39 @@ export async function getNearbyPlaces(
   return places.slice(0, 12);
 }
 
-// --- 5. Orquestra tudo: CEP → endereço → coordenadas → clima + locais ---
 export async function searchRegion(cep: string): Promise<SearchResult> {
   const address = await getAddressByCep(cep);
-  const coordinates = await getCoordinates(address.localidade);
+  
+  let coordinates;
+  try {
+    coordinates = await getCoordinates(address.localidade);
+  } catch (error) {
+    console.warn("Erro ao buscar coordenadas (possível 429):", error);
+    // Retorna apenas o endereço, sem quebrar a aplicação caso a API caia
+    return {
+      address,
+      weather: { temperature: 0, max: 0, min: 0, condition: "Indisponível" },
+      places: []
+    };
+  }
 
   const [weather, places] = await Promise.all([
-    getWeather(coordinates.latitude, coordinates.longitude),
+    getWeather(coordinates.latitude, coordinates.longitude).catch(
+      (error) => {
+        console.warn("Erro ao buscar clima (possível 429):", error);
+        return {
+          temperature: 0,
+          max: 0,
+          min: 0,
+          condition: "Indisponível",
+        };
+      }
+    ),
     getNearbyPlaces(coordinates.latitude, coordinates.longitude).catch(
-      () => []
+      (error) => {
+        console.warn("Erro ao buscar locais próximos:", error);
+        return [];
+      }
     ),
   ]);
 
